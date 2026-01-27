@@ -138,15 +138,15 @@ fn poll_vsock_interfaces() -> AxResult<bool> {
     // Use core::mem::take to atomically move all events out and empty the global queue
     let pending_events = core::mem::take(&mut *PENDING_EVENTS.lock());
     for event in pending_events {
-        handle_vsock_event(event, dev, &mut buf);
+        dispatch_irq_vsock_event(event, dev, &mut buf);
     }
 
     loop {
         match dev.poll_event() {
             Ok(None) => break, // no more events
-            Ok(Some(event_type)) => {
+            Ok(Some(event)) => {
                 event_count += 1;
-                handle_vsock_event(event_type, dev, &mut buf);
+                dispatch_irq_vsock_event(event, dev, &mut buf);
             }
             Err(e) => {
                 info!("Failed to poll vsock event: {e:?}");
@@ -157,11 +157,11 @@ fn poll_vsock_interfaces() -> AxResult<bool> {
     Ok(event_count > 0)
 }
 
-fn handle_vsock_event(event_type: VsockDriverEventType, dev: &mut AxVsockDevice, buf: &mut [u8]) {
+fn dispatch_irq_vsock_event(event: VsockDriverEventType, dev: &mut AxVsockDevice, buf: &mut [u8]) {
     let mut manager = VSOCK_CONN_MANAGER.lock();
-    debug!("Handling vsock event: {event_type:?}");
+    debug!("Handling vsock event: {event:?}");
 
-    match event_type {
+    match event {
         VsockDriverEventType::ConnectionRequest(conn_id) => {
             if let Err(e) = manager.on_connection_request(conn_id) {
                 info!("Connection request failed: {conn_id:?}, error={e:?}");
@@ -187,7 +187,10 @@ fn handle_vsock_event(event_type: VsockDriverEventType, dev: &mut AxVsockDevice,
             match dev.recv(conn_id, &mut buf[..max_read]) {
                 Ok(read_len) => {
                     if let Err(e) = manager.on_data_received(conn_id, &buf[..read_len]) {
-                        info!("Failed to handle received data: conn_id={conn_id:?}, error={e:?}",);
+                        info!(
+                            "Failed to dispatch_irq received data: conn_id={conn_id:?}, \
+                             error={e:?}",
+                        );
                     }
                 }
                 Err(e) => {
@@ -198,13 +201,13 @@ fn handle_vsock_event(event_type: VsockDriverEventType, dev: &mut AxVsockDevice,
 
         VsockDriverEventType::Disconnected(conn_id) => {
             if let Err(e) = manager.on_disconnected(conn_id) {
-                info!("Failed to handle disconnection: {conn_id:?}, error={e:?}",);
+                info!("Failed to dispatch_irq disconnection: {conn_id:?}, error={e:?}",);
             }
         }
 
         VsockDriverEventType::Connected(conn_id) => {
             if let Err(e) = manager.on_connected(conn_id) {
-                info!("Failed to handle connection established: {conn_id:?}, error={e:?}",);
+                info!("Failed to dispatch_irq connection established: {conn_id:?}, error={e:?}",);
             }
         }
 
