@@ -6,7 +6,6 @@ use core::{ffi::CStr, hint::unlikely, iter, mem::MaybeUninit};
 use axerrno::{AxError, AxResult};
 use axfs::{CachedFile, FS_CONTEXT, FileBackend};
 use axfs_ng_vfs::Location;
-use axmm::{AddrSpace, backend::Backend};
 use extern_trait::extern_trait;
 use kernel_elf_parser::{AuxEntry, ELFHeaders, ELFHeadersBuilder, ELFParser, app_stack_region};
 use khal::{
@@ -18,6 +17,7 @@ use kspin::IrqSave;
 use ksync::Mutex;
 use ktask::current;
 use memaddr::{MemoryAddr, PAGE_SIZE_4K, VirtAddr};
+use memspace::{AddrSpace, backend::Backend};
 use ouroboros::self_referencing;
 use starry_vm::{VmError, VmIo, VmResult};
 
@@ -43,7 +43,7 @@ pub fn copy_from_kernel(_aspace: &mut AddrSpace) -> AxResult {
         // ARMv8 (aarch64) and LoongArch64 use separate page tables for user space
         // (aarch64: TTBR0_EL1, LoongArch64: PGDL), so there is no need to copy the
         // kernel portion to the user page table.
-        _aspace.copy_mappings_from(&axmm::kernel_layout().lock())?;
+        _aspace.copy_mappings_from(&memspace::kernel_layout().lock())?;
     }
     Ok(())
 }
