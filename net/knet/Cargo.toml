@@ -1,26 +1,22 @@
 [package]
-name = "axnet"
+name = "knet"
 version.workspace = true
 edition.workspace = true
-authors = [
-  "Yuekai Jia <equation618@gmail.com>",
-  "ChengXiang Qi <kuangjux@outlook.com>",
-  "KylinSoft Co., Ltd. <https://www.kylinos.cn/>"
-]
-description = "ArceOS network module"
+authors.workspace = true
+description = "network module"
 license.workspace = true
 homepage.workspace = true
-repository = "https://github.com/arceos-org/arceos/tree/main/modules/axnet"
-documentation = "https://arceos-org.github.io/arceos/axnet/index.html"
+repository.workspace = true
+documentation.workspace = true
 
 [features]
 vsock = ["kdriver/vsock"]
 
 [dependencies]
 platconfig = { workspace = true }
+kdriver = { workspace = true, features = ["net"] }
 khal = { workspace = true }
 ksync = { workspace = true }
-kdriver = { workspace = true, features = ["net"] }
 ktask = { workspace = true }
 
 axerrno = { workspace = true }

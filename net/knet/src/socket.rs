@@ -20,13 +20,13 @@ use crate::{
     options::{Configurable, GetSocketOption, SetSocketOption},
     tcp::TcpSocket,
     udp::UdpSocket,
-    unix::{UnixSocket, UnixSocketAddr},
+    unix::{UnixAddr, UnixDomainSocket},
 };
 
 #[derive(Clone, Debug)]
 pub enum SocketAddrEx {
     Ip(SocketAddr),
-    Unix(UnixSocketAddr),
+    Unix(UnixAddr),
     #[cfg(feature = "vsock")]
     Vsock(VsockAddr),
 }
@@ -41,7 +41,7 @@ impl SocketAddrEx {
         }
     }
 
-    pub fn into_unix(self) -> AxResult<UnixSocketAddr> {
+    pub fn into_unix(self) -> AxResult<UnixAddr> {
         match self {
             SocketAddrEx::Unix(addr) => Ok(addr),
             SocketAddrEx::Ip(_) => Err(AxError::from(LinuxError::EAFNOSUPPORT)),
@@ -162,14 +162,53 @@ pub trait SocketOps: Configurable {
     fn shutdown(&self, how: Shutdown) -> AxResult;
 }
 
+impl<T: SocketOps + ?Sized> SocketOps for Box<T> {
+    fn bind(&self, local_addr: SocketAddrEx) -> AxResult {
+        (**self).bind(local_addr)
+    }
+
+    fn connect(&self, remote_addr: SocketAddrEx) -> AxResult {
+        (**self).connect(remote_addr)
+    }
+
+    fn listen(&self) -> AxResult {
+        (**self).listen()
+    }
+
+    fn accept(&self) -> AxResult<Socket> {
+        (**self).accept()
+    }
+
+    fn send(&self, src: impl Read + IoBuf, options: SendOptions) -> AxResult<usize> {
+        (**self).send(src, options)
+    }
+
+    fn recv(&self, dst: impl Write + IoBufMut, options: RecvOptions<'_>) -> AxResult<usize> {
+        (**self).recv(dst, options)
+    }
+
+    fn local_addr(&self) -> AxResult<SocketAddrEx> {
+        (**self).local_addr()
+    }
+
+    fn peer_addr(&self) -> AxResult<SocketAddrEx> {
+        (**self).peer_addr()
+    }
+
+    fn shutdown(&self, how: Shutdown) -> AxResult {
+        (**self).shutdown(how)
+    }
+}
+
 /// Network socket abstraction.
+#[allow(clippy::large_enum_variant)]
 #[enum_dispatch(Configurable, SocketOps)]
 pub enum Socket {
-    Udp(UdpSocket),
-    Tcp(TcpSocket),
-    Unix(UnixSocket),
+    Udp(Box<UdpSocket>),
+    Tcp(Box<TcpSocket>),
+    Unix(Box<UnixDomainSocket>),
     #[cfg(feature = "vsock")]
-    Vsock(VsockSocket),
+    Vsock(Box<VsockSocket>),
 }
 
 impl Pollable for Socket {
