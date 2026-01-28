@@ -1,9 +1,10 @@
-name:  CI Test
+name: CI Test
 
 on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
@@ -15,20 +16,29 @@ concurrency:
 jobs:
   ci-test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, aarch64]
+
+    name: CI Test (${{ matrix.arch }})
+
     env:
-      ARCH: aarch64
+      ARCH: ${{ matrix.arch }}
+      SMP: 4
       STARRYOS_ROOT: ${{ github.workspace }}/.cache/StarryOS
+
     steps:
       - name: Checkout Starry Test Harness
         uses: actions/checkout@v4
         with:
           repository: kylin-x-kernel/starry-test-harness
           path: starry-test-harness
-      
+
       - name: Create cache directory
         run: mkdir -p .cache
-      
-      - name: Checkout StarryOS 
+
+      - name: Checkout StarryOS
         uses: actions/checkout@v4
         with:
           path: .cache/StarryOS
@@ -37,34 +47,49 @@ jobs:
       - name: Install Rust cache for harness
         uses: Swatinem/rust-cache@v2
         with:
-          shared-key: starry-ci-harness
+          shared-key: starry-ci-harness-${{ matrix.arch }}
 
-      - name: Install musl toolchain
+      - name: Install musl toolchain for ${{ matrix.arch }}
         uses: arceos-org/setup-musl@v1
         with:
-          arch: ${{ env.ARCH }}
+          arch: ${{ matrix.arch }}
 
       - name: Install QEMU
         uses: arceos-org/setup-qemu@v1
         with:
           version: 10.1.0
-          arch_list: ${{ env.ARCH }}
+          arch_list: ${{ matrix.arch }}
 
       - name: Install filesystem tools
         run: sudo apt-get update && sudo apt-get install -y e2fsprogs
 
-      - name: 执行 ci-test
+      - name: Prepare Rust toolchain for StarryOS
+        working-directory: .cache/StarryOS
+        run: |
+          if [ "${{ matrix.arch }}" = "x86_64" ]; then
+            rustup target add x86_64-unknown-none
+            rustup target add x86_64-unknown-linux-musl || true
+            rustup target list --installed | grep x86_64
+          else
+            rustup target add aarch64-unknown-none
+            rustup target add aarch64-unknown-linux-musl || true
+            rustup target list --installed | grep aarch64
+          fi
+
+      - name: 执行 ci-test (${{ matrix.arch }})
         working-directory: starry-test-harness
         run: |
           export STARRYOS_COMMIT=$(git -C ../.cache/StarryOS rev-parse HEAD)
-          make ci-test run
+          make ci-test arch=${{ matrix.arch }} run
 
       - name: Dump suite logs
         working-directory: starry-test-harness
         if: always()
         run: |
           if [ -d logs/ci ]; then
-            find logs/ci -name 'suite.log' -print -exec sh -c 'echo "::group::{}"; cat "$1"; echo "::endgroup::"' _ {} \;
+            echo "::group::Suite Log (${{ matrix.arch }})"
+            find logs/ci -name 'suite.log' -print -exec cat {} \;
+            echo "::endgroup::"
           else
             echo "logs/ci not found"
           fi
@@ -73,6 +98,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ci-logs-${{ github.run_id }}
+          name: ci-logs-${{ matrix.arch }}-${{ github.run_id }}
           path: starry-test-harness/logs/ci
           if-no-files-found: warn
