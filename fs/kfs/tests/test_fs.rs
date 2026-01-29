@@ -4,11 +4,11 @@
 
 use std::collections::HashSet;
 
-use axfs::{File, FsContext, fs};
 use fs_ng_vfs::{
     Filesystem, Location, Mountpoint, NodePermission, NodeType, VfsError, VfsResult, path::Path,
 };
-use kdriver_block::ramdisk::RamDisk;
+use kdriver::ramdisk::RamDisk;
+use kfs::{File, FsContext};
 use kio::Read;
 
 type RawMutex = spin::Mutex<()>;

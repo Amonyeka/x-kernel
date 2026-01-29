@@ -1,9 +1,9 @@
 [package]
-name = "axfs"
+name = "kfs"
 version.workspace = true
 edition.workspace = true
-authors = ["Mivik <mivikq@gmail.com>"]
-description = "ArceOS filesystem module"
+authors = ["KylinSoft Co., Ltd. <https://www.kylinos.cn/>"]
+description = "filesystem module"
 license.workspace = true
 homepage.workspace = true
 
