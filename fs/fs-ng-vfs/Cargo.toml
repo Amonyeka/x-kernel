@@ -1,0 +1,19 @@
+[package]
+name = "fs-ng-vfs"
+version = "0.1.0"
+edition = "2024"
+authors = ["KylinSoft Co., Ltd. <https://www.kylinos.cn/>"]
+description = "Virtual filesystem layer for x-kernel"
+keywords = ["vfs", "filesystem", "fs-ng", "x-kernel"]
+license = "Apache-2.0"
+
+[dependencies]
+axerrno = { workspace = true}
+kpoll = { workspace = true }
+bitflags = "2.10"
+cfg-if = "1"
+hashbrown = "0.15"
+inherit-methods-macro = "0.1"
+log = "0.4"
+smallvec = "1.15"
+spin = { version = "0.10", default-features = false, features = ["mutex", "spin_mutex"] }

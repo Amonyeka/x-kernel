@@ -7,7 +7,7 @@ use alloc::{
 };
 use core::any::Any;
 
-use axfs_ng_vfs::{
+use fs_ng_vfs::{
     DirEntry, DirEntrySink, DirNode, DirNodeOps, FileNode, FilesystemOps, Metadata, MetadataUpdate,
     NodeOps, NodePermission, NodeType, Reference, VfsError, VfsResult, WeakDirEntry,
     path::{DOT, DOTDOT},
@@ -25,8 +25,8 @@ pub trait SimpleDirOps: Send + Sync + 'static {
 
     /// Check if the directory is cacheable.
     ///
-    /// See [`DirNodeOps::is_cacheable`].
-    fn is_cacheable(&self) -> bool {
+    /// See [`DirNodeOps::supports_dentry_cache`].
+    fn supports_dentry_cache(&self) -> bool {
         true
     }
 
@@ -86,10 +86,10 @@ impl<A: SimpleDirOps, B: SimpleDirOps> SimpleDirOps for ChainedDirOps<A, B> {
         }
     }
 
-    fn is_cacheable(&self) -> bool {
+    fn supports_dentry_cache(&self) -> bool {
         // TODO: If one of the ops is not cacheable while the other is, the
         // behavior is undefined.
-        self.0.is_cacheable() && self.1.is_cacheable()
+        self.0.supports_dentry_cache() && self.1.supports_dentry_cache()
     }
 }
 
@@ -183,8 +183,8 @@ impl<O: SimpleDirOps> DirNodeOps for SimpleDir<O> {
         })
     }
 
-    fn is_cacheable(&self) -> bool {
-        self.ops.is_cacheable()
+    fn supports_dentry_cache(&self) -> bool {
+        self.ops.supports_dentry_cache()
     }
 
     fn create(

@@ -6,8 +6,8 @@ use core::{
     sync::atomic::{AtomicU64, Ordering},
 };
 
-use axfs_ng_vfs::{NodeFlags, VfsResult};
 use backtrace::Backtrace;
+use fs_ng_vfs::{NodeFlags, VfsResult};
 use starry_core::{
     mm::clear_elf_cache,
     task::{cleanup_task_tables, tasks},
@@ -65,8 +65,8 @@ impl MemoryCategory {
                 "ktask::timers::set_alarm_wakeup" => {
                     return Some("timer");
                 }
-                "axfs_ng_vfs::node::dir::DirNode::lookup_locked"
-                | "axfs_ng_vfs::node::dir::DirNode::create_locked" => {
+                "fs_ng_vfs::node::dir::DirNode::lookup_locked"
+                | "fs_ng_vfs::node::dir::DirNode::create_locked" => {
                     return Some("dentry");
                 }
                 "ext4_user_malloc" => {
