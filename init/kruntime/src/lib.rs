@@ -1,15 +1,3 @@
-// SPDX-License-Identifier: Apache-2.0
-// Copyright (C) 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
-// Copyright (C) 2025 Yuekai Jia <equation618@gmail.com>
-// See LICENSE for license details.
-//
-// This file has been modified by KylinSoft on 2025.
-
-//! Runtime library of [ArceOS](https://github.com/arceos-org/arceos).
-//!
-//! Any application uses ArceOS should link this library. It does some
-//! initialization work before entering the application's `main` function.
-//!
 //! # Cargo Features
 //!
 //! - `alloc`: Enable global memory allocator.
@@ -37,14 +25,28 @@ mod mp;
 pub use self::mp::rust_main_secondary;
 
 const LOGO: &str = r#"
-       d8888                            .d88888b.   .d8888b.
-      d88888                           d88P" "Y88b d88P  Y88b
-     d88P888                           888     888 Y88b.
-    d88P 888 888d888  .d8888b  .d88b.  888     888  "Y888b.
-   d88P  888 888P"   d88P"    d8P  Y8b 888     888     "Y88b.
-  d88P   888 888     888      88888888 888     888       "888
- d8888888888 888     Y88b.    Y8b.     Y88b. .d88P Y88b  d88P
-d88P     888 888      "Y8888P  "Y8888   "Y88888P"   "Y8888P"
+                 ++
+             *  ***
+           *******
+         *******++
+      ********+===
+    ******#*+======
+   *******#***++===
+   *********+**===
+  ##*********##==                  ====+
+%##****++==+****#                ***+=**
+#****++=====++****##            ********
+####*+=======+******===-     ***#*##****
+ #%#******+**+==++**=======+*+*#%
+ %#****+******=====+====+++==**
+  #*********##***###********##%
+   ***##%#%%%%*****#*###*****#%
+   *#%%%#%%%%%****   %%*******#%
+   #%%%%%%          %%%##***###%%
+    **#%           %%%%#% **#**##
+   ###%%         %%%%%   %%%***
+ %%%%%%        %%%%%%%  %%%%#*
+ %%%%%%                %%%%%%+=
 "#;
 
 unsafe extern "C" {
@@ -212,7 +214,7 @@ pub fn rust_main(cpu_id: usize, arg: usize) -> ! {
     #[cfg(feature = "watchdog")]
     axwatchdog::init_primary();
 
-    ctor_bare::call_ctors();
+    kinit_setup::init_cb();
 
     info!("Primary CPU {cpu_id} init OK.");
     INITED_CPUS.fetch_add(1, Ordering::Release);
