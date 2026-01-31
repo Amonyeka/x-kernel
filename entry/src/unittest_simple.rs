@@ -7,7 +7,7 @@
 //! This module demonstrates how to use the `#[unittest]` macro to define
 //! unit tests that are automatically collected and can be run with `unittest::test_run()`.
 
-use unittest::{TestResult, assert, assert_eq, assert_ne, def_test, mod_test};
+use unittest::{TestResult, assert, assert_eq, assert_ne, def_test};
 
 // ============================================================================
 // Basic test examples using #[unittest] macro
@@ -57,7 +57,7 @@ fn test_ignored() {
 // More complex test examples
 // ============================================================================
 
-#[mod_test]
+#[cfg(unittest)]
 mod math_tests {
     use unittest::def_test;
     /// Test Vec operations
