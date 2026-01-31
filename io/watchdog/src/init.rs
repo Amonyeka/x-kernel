@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! Watchdog initialization and NMI handler setup.
 use khal::{context::TrapFrame, percpu::this_cpu_id};
 use ktask::{KCpuMask, TaskInner};

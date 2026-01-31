@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright (C) 2025 WeiKang Guo <guoweikang.kernel@gmail.com
-// Copyright (C) 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
-// See LICENSE for license details.
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
 
 //! A pure-Rust #![no_std] crate for parsing Flattened Devicetrees,
 //! with the goal of having a very ergonomic and idiomatic API.

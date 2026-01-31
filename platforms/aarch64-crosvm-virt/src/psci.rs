@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! PSCI wrappers and KVM guard-granule helpers.
 use kplat::psci::PsciOp;
 use spin::Once;

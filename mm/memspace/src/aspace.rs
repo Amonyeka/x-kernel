@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! Address space implementation backed by memory sets and page tables.
 use alloc::sync::Arc;
 use core::{fmt, ops::DerefMut};

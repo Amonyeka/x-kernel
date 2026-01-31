@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! SMP bring-up helpers for Raspberry Pi.
 use kplat::memory::{PhysAddr, pa, p2v, va, v2p};
 static mut SECONDARY_STACK_TOP: usize = 0;

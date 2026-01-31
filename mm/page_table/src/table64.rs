@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! Generic 64-bit multi-level page table implementation.
 use core::{marker::PhantomData, ops::Deref};
 

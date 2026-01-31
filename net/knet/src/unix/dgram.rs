@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! Unix datagram socket transport.
 use alloc::{boxed::Box, sync::Arc, vec::Vec};
 use core::task::Context;

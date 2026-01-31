@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! Device tree parsing helpers for the platform.
 use kplat::memory::{VirtAddr, p2v, pa};
 use log::*;

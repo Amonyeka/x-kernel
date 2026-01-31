@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! Helpers for reading/writing user virtual memory.
 #![no_std]
 #![feature(maybe_uninit_as_bytes)]

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright (C) 2025 Weikang Guo <guoweikang.kernel@gmail.com>
-// Copyright (C) 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
-// See LICENSE for license details.
-//
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
 
 //! This module defines the generic abstraction layer for ARM interrupt management.
 //! The interfaces provided here are architecturally neutral, ensuring compatibility

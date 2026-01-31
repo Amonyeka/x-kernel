@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! Memory set container and mapping operations.
 use alloc::collections::BTreeMap;
 #[allow(unused_imports)] // this is a weird false alarm

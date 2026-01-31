@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! Early boot and entry stubs for the aarch64 crosvm-virt platform.
 use aarch64_cpu::registers::*;
 use kplat::memory::{PageAligned, pa};

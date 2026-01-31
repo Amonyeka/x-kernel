@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! Minimal early-boot UART printing for diagnostics.
 #[unsafe(no_mangle)]
 pub extern "C" fn _boot_print_usize(num: usize) {

@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! Raspberry Pi memory layout implementation for `kplat::memory::HwMemory`.
 use kplat::memory::{HwMemory, PhysAddr, RawRange, VirtAddr, pa, va};
 use crate::config::devices::MMIO_RANGES;

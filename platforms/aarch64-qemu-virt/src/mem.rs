@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! Memory layout definitions for aarch64-qemu-virt.
 
 use kplat::memory::{HwMemory, MemRange, PhysAddr, VirtAddr, pa, va};

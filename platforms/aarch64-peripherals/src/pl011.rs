@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! PL011 UART helper functions and console adapter macro.
 use arm_pl011::Pl011Uart;
 use kplat::memory::VirtAddr;

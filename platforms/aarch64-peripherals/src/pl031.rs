@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2025 KylinSoft Co., Ltd. <https://www.kylinos.cn/>
+// See LICENSES for license details.
+
 //! PL031 RTC helper for epoch offset calculation.
 use arm_pl031::Rtc;
 use kplat::memory::VirtAddr;
