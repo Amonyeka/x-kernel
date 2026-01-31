@@ -13,6 +13,9 @@ extern crate alloc;
 #[macro_use]
 extern crate log;
 
+mod test_path_resolver;
+mod test_working_context;
+
 use kdriver::{BlockDevice as KBlockDevice, DeviceContainer, prelude::*};
 
 #[cfg(feature = "fat")]

@@ -14,6 +14,9 @@ mod node;
 pub mod path;
 mod types;
 
+mod test_path;
+mod test_types;
+
 pub use fs::*;
 pub use mount::*;
 pub use node::*;

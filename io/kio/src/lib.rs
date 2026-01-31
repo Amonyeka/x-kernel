@@ -27,6 +27,10 @@ mod seek;
 mod utils;
 mod write;
 
+mod test_cursor;
+mod test_iobuf;
+mod test_seek;
+
 pub use self::{buffered::*, iobuf::*, read::*, seek::*, utils::*, write::*};
 
 /// I/O poll results.
