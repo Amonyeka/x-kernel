@@ -14,6 +14,9 @@ extern crate kruntime;
 
 use alloc::{borrow::ToOwned, vec::Vec};
 
+#[cfg(feature = "unittest")]
+mod unittest_simple;
+
 use kfs::FS_CONTEXT;
 
 mod entry;
@@ -31,17 +34,8 @@ fn main() {
         .collect::<Vec<_>>();
     let envs = [];
 
-    #[cfg(feature = "test")]
-    {
-        use kapi::tee::test_unit_test::tee_unit_test;
-        use unittest::test_examples::test_example;
-
-        info!("Running example tests...");
-        test_example();
-
-        info!("Running TEE unit tests...");
-        tee_unit_test();
-    }
+    #[cfg(feature = "unittest")]
+    unittest::test_run();
 
     let exit_code = entry::run_initproc(&args, &envs);
     info!("Init process exited with code: {exit_code:?}");

@@ -12,3 +12,4 @@ categories.workspace = true
 
 [dependencies]
 log.workspace = true
+macros.workspace = true
