@@ -42,6 +42,8 @@ mod net;
 #[cfg(feature = "net")]
 pub use self::net::VirtIoNetDev;
 
+#[cfg(unittest)]
+pub mod mock_virtio;
 #[cfg(feature = "socket")]
 mod socket;
 use driver_base::{DeviceKind, DriverError};
