@@ -24,3 +24,26 @@ pub fn busy_wait(dur: Duration) {
 pub fn busy_wait_until(deadline: TimeValue) {
     spin_until(deadline);
 }
+
+#[cfg(unittest)]
+#[allow(missing_docs)]
+pub mod tests_time {
+    use unittest::def_test;
+
+    use super::{Duration, NANOS_PER_SEC};
+
+    #[def_test]
+    fn test_duration_from_nanos() {
+        let nanos = NANOS_PER_SEC;
+        let from = Duration::from_nanos(nanos);
+        let one = Duration::from_secs(1);
+        assert_eq!(from, one);
+    }
+
+    #[def_test]
+    fn test_duration_ordering() {
+        let short = Duration::from_millis(1);
+        let long = Duration::from_millis(2);
+        assert!(long > short);
+    }
+}

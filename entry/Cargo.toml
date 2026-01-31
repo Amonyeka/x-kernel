@@ -111,8 +111,8 @@ linkme.workspace = true
 linux-raw-sys.workspace = true
 kprocess.workspace = true
 ksignal.workspace = true
-kcore.workspace = true
 kapi.workspace = true
+kcore.workspace = true
 
 unittest = { workspace = true, optional = true }
 

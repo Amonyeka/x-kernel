@@ -96,3 +96,34 @@ impl Drop for ExceptionContextGuard {
         }
     }
 }
+
+#[cfg(unittest)]
+pub mod tests_active_exception_context {
+    use unittest::def_test;
+
+    use super::*;
+    use crate::ExceptionContext;
+
+    #[def_test]
+    fn test_active_exception_context_none() {
+        assert!(active_exception_context().is_none());
+    }
+
+    #[def_test]
+    fn test_guard_sets_and_restores() {
+        let ctx = ExceptionContext::default();
+        {
+            let _guard = ExceptionContextGuard::new(&ctx);
+            assert!(active_exception_context().is_some());
+        }
+        assert!(active_exception_context().is_none());
+    }
+
+    #[def_test]
+    fn test_with_active_exception_context() {
+        let ctx = ExceptionContext::default();
+        let _guard = ExceptionContextGuard::new(&ctx);
+        let got = with_active_exception_context(|opt| opt.map(|p| p as *const _));
+        assert_eq!(got, Some(&ctx as *const _));
+    }
+}

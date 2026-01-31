@@ -55,3 +55,39 @@ impl Default for IpiEventQueue {
         Self::new()
     }
 }
+
+#[cfg(unittest)]
+#[allow(missing_docs)]
+pub mod tests_queue {
+    use unittest::def_test;
+
+    use super::IpiEventQueue;
+    use crate::event::Callback;
+
+    #[def_test]
+    fn test_queue_empty_pop() {
+        let mut queue = IpiEventQueue::new();
+        assert!(queue.pop_one().is_none());
+    }
+
+    #[def_test]
+    fn test_queue_fifo() {
+        let mut queue = IpiEventQueue::new();
+        queue.push(1, Callback::new(|| {}));
+        queue.push(2, Callback::new(|| {}));
+        let (src1, _) = queue.pop_one().unwrap();
+        let (src2, _) = queue.pop_one().unwrap();
+        assert_eq!(src1, 1);
+        assert_eq!(src2, 2);
+    }
+
+    #[def_test]
+    fn test_queue_reuse() {
+        let mut queue = IpiEventQueue::new();
+        queue.push(3, Callback::new(|| {}));
+        let _ = queue.pop_one();
+        queue.push(4, Callback::new(|| {}));
+        let (src, _) = queue.pop_one().unwrap();
+        assert_eq!(src, 4);
+    }
+}

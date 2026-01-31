@@ -61,3 +61,24 @@ pub unsafe fn set_current_task_ptr<T>(ptr: *const T) {
 #[cfg(feature = "smp")]
 pub use kplat::cpu::ap_cpu_init as init_secondary;
 pub use kplat::cpu::{boot_cpu_init as init_primary, id as this_cpu_id};
+
+#[cfg(unittest)]
+#[allow(missing_docs)]
+pub mod tests_percpu {
+    use unittest::def_test;
+
+    use super::{current_task_ptr, this_cpu_id};
+
+    #[def_test]
+    fn test_current_task_ptr_consistent() {
+        let first = current_task_ptr::<u8>() as usize;
+        let second = current_task_ptr::<u8>() as usize;
+        assert_eq!(first, second);
+    }
+
+    #[def_test]
+    fn test_this_cpu_id_consistent() {
+        let id = this_cpu_id();
+        assert_eq!(id, this_cpu_id());
+    }
+}

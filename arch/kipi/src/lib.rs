@@ -147,5 +147,5 @@ pub fn ipi_handler() {
     }
 }
 
-#[cfg(test)]
+#[cfg(unittest)]
 mod tests;

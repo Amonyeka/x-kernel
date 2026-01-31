@@ -186,3 +186,27 @@ unsafe fn init_tcb(tls_area: *mut u8) {
         }
     }
 }
+
+#[cfg(all(unittest, feature = "tls"))]
+#[allow(missing_docs)]
+pub mod tests_tls {
+    use unittest::def_test;
+
+    use super::TlsArea;
+
+    #[def_test]
+    fn test_tls_alloc_ptr_non_null() {
+        let area = TlsArea::alloc();
+        let ptr = area.tls_ptr();
+        assert!(!ptr.is_null());
+    }
+
+    #[cfg(target_arch = "x86_64")]
+    #[def_test]
+    fn test_tls_self_pointer_x86_64() {
+        let area = TlsArea::alloc();
+        let ptr = area.tls_ptr();
+        let stored = unsafe { *(ptr as *const usize) };
+        assert_eq!(stored, ptr as usize);
+    }
+}
