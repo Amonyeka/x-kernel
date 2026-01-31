@@ -536,3 +536,38 @@ pub fn send_signal_to_process_group(pgid: Pid, sig: Option<SignalInfo>) -> KResu
 
     Ok(())
 }
+
+/// Unit tests.
+#[cfg(unittest)]
+pub mod tests_task {
+    use unittest::def_test;
+
+    use super::{AssumeSync, TaskStat};
+
+    #[def_test]
+    fn test_assume_sync_deref() {
+        let value = AssumeSync(42_u32);
+        assert_eq!(*value, 42);
+    }
+
+    #[def_test]
+    fn test_taskstat_display_default() {
+        let stat = TaskStat::default();
+        let text = alloc::format!("{stat}");
+        let text = text.trim_end();
+        assert!(text.starts_with("0 ("));
+        assert!(text.ends_with(" 0"));
+    }
+
+    #[def_test]
+    fn test_taskstat_display_custom() {
+        let stat = TaskStat {
+            pid: 7,
+            comm: "init".into(),
+            state: 'R',
+            ..Default::default()
+        };
+        let text = alloc::format!("{stat}");
+        assert!(text.starts_with("7 (init) R "));
+    }
+}

@@ -25,3 +25,29 @@ cfg_if::cfg_if! {
         compile_error!("Unsupported architecture");
     }
 }
+
+/// Unit tests.
+#[cfg(unittest)]
+pub mod tests_config {
+    use unittest::def_test;
+
+    use super::*;
+
+    #[def_test]
+    fn test_user_space_range() {
+        assert!(USER_SPACE_SIZE > 0);
+        assert!(USER_SPACE_BASE < USER_SPACE_BASE + USER_SPACE_SIZE);
+    }
+
+    #[def_test]
+    fn test_user_stack_range() {
+        assert!(USER_STACK_SIZE > 0);
+        assert!(USER_STACK_TOP > USER_STACK_SIZE);
+    }
+
+    #[def_test]
+    fn test_heap_limits() {
+        assert!(USER_HEAP_SIZE > 0);
+        assert!(USER_HEAP_SIZE_MAX >= USER_HEAP_SIZE);
+    }
+}

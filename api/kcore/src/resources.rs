@@ -64,3 +64,35 @@ impl IndexMut<u32> for Rlimits {
         &mut self.0[index as usize]
     }
 }
+
+/// Unit tests.
+#[cfg(unittest)]
+pub mod tests_resources {
+    use unittest::def_test;
+
+    use super::*;
+
+    #[def_test]
+    fn test_rlimit_new() {
+        let r = Rlimit::new(1, 2);
+        assert_eq!(r.current, 1);
+        assert_eq!(r.max, 2);
+    }
+
+    #[def_test]
+    fn test_rlimit_from() {
+        let r: Rlimit = 3_u64.into();
+        assert_eq!(r.current, 3);
+        assert_eq!(r.max, 3);
+    }
+
+    #[def_test]
+    fn test_rlimits_default() {
+        let limits = Rlimits::default();
+        assert_eq!(
+            limits[RLIMIT_STACK].current,
+            crate::config::USER_STACK_SIZE as u64
+        );
+        assert_eq!(limits[RLIMIT_NOFILE].current, AX_FILE_LIMIT as u64);
+    }
+}

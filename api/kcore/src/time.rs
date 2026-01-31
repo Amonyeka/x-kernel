@@ -278,3 +278,37 @@ pub fn spawn_alarm_task() {
         platconfig::TASK_STACK_SIZE,
     );
 }
+
+/// Unit tests.
+#[cfg(unittest)]
+pub mod tests_time {
+    use ksignal::Signo;
+    use unittest::def_test;
+
+    use super::{ITimerType, TimeManager};
+
+    #[def_test]
+    fn test_itimer_signo() {
+        assert_eq!(ITimerType::Real.signo(), Signo::SIGALRM);
+        assert_eq!(ITimerType::Virtual.signo(), Signo::SIGVTALRM);
+        assert_eq!(ITimerType::Prof.signo(), Signo::SIGPROF);
+    }
+
+    #[def_test]
+    fn test_itimer_from_repr() {
+        assert_eq!(ITimerType::from_repr(0), Some(ITimerType::Real));
+        assert_eq!(ITimerType::from_repr(1), Some(ITimerType::Virtual));
+        assert_eq!(ITimerType::from_repr(2), Some(ITimerType::Prof));
+        assert_eq!(ITimerType::from_repr(3), None);
+    }
+
+    #[def_test]
+    fn test_timemanager_default_output() {
+        let tm = TimeManager::new();
+        let (u, s) = tm.output();
+        assert_eq!(u.as_secs(), 0);
+        assert_eq!(u.subsec_nanos(), 0);
+        assert_eq!(s.as_secs(), 0);
+        assert_eq!(s.subsec_nanos(), 0);
+    }
+}

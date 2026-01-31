@@ -409,3 +409,29 @@ unsafe impl VirtMemIo for Vm {
         }
     }
 }
+
+/// Unit tests.
+#[cfg(unittest)]
+pub mod tests_mm {
+    use osvm::MemError;
+    use unittest::def_test;
+
+    use super::{USER_SPACE_BASE, USER_SPACE_SIZE, check_access};
+
+    #[def_test]
+    fn test_check_access_valid() {
+        assert!(check_access(USER_SPACE_BASE, 1).is_ok());
+    }
+
+    #[def_test]
+    fn test_check_access_invalid_low() {
+        let res = check_access(USER_SPACE_BASE - 1, 1);
+        assert!(matches!(res, Err(MemError::NoAccess)));
+    }
+
+    #[def_test]
+    fn test_check_access_invalid_len() {
+        let res = check_access(USER_SPACE_BASE, USER_SPACE_SIZE + 1);
+        assert!(matches!(res, Err(MemError::NoAccess)));
+    }
+}

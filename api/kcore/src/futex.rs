@@ -244,3 +244,40 @@ impl Drop for FutexGuard<'_> {
         }
     }
 }
+
+/// Unit tests.
+#[cfg(unittest)]
+pub mod tests_futex {
+    use unittest::def_test;
+
+    use super::*;
+
+    #[def_test]
+    fn test_waitqueue_wake_empty() {
+        let wq = WaitQueue::new();
+        assert!(wq.is_empty());
+        assert_eq!(wq.wake(1, 0xffff_ffff), 0);
+    }
+
+    #[def_test]
+    fn test_waitqueue_requeue_empty() {
+        let src = WaitQueue::new();
+        let dst = WaitQueue::new();
+        assert_eq!(src.requeue(1, &dst), 0);
+        assert!(src.is_empty());
+        assert!(dst.is_empty());
+    }
+
+    #[def_test]
+    fn test_futextable_insert_drop() {
+        let table = FutexTable::new();
+        let key = FutexKey::Private { address: 0x1000 };
+        {
+            let _guard = table.get_or_insert(&key);
+            assert!(table.get(&key).is_some());
+            assert!(!table.is_empty());
+        }
+        assert!(table.get(&key).is_none());
+        assert!(table.is_empty());
+    }
+}
