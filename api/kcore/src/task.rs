@@ -29,12 +29,11 @@ use ksignal::{
     SignalInfo, Signo,
     api::{ProcessSignalManager, SignalActions, ThreadSignalManager},
 };
-use ksync::{Mutex, spin::SpinNoIrq};
+use ksync::{Mutex, RwLock, spin::SpinNoIrq};
 use ktask::{KtaskRef, TaskExt, TaskInner, WeakKtaskRef, current};
 use lazy_static::lazy_static;
 use memspace::AddrSpace;
 use scope_local::{ActiveScope, Scope};
-use spin::RwLock;
 use weak_map::WeakMap;
 
 pub use self::stat::TaskStat;
@@ -196,7 +195,7 @@ unsafe impl TaskExt for Box<Thread> {
 
     fn on_leave(&self) {
         ActiveScope::set_global();
-        unsafe { self.proc_data.scope.force_read_decrement() };
+        unsafe { self.proc_data.scope.force_unlock_read() };
     }
 }
 
