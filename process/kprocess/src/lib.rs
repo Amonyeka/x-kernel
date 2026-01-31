@@ -10,6 +10,8 @@
 
 extern crate alloc;
 
+mod tests;
+
 mod process;
 mod process_group;
 mod session;

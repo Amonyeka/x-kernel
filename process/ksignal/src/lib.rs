@@ -9,6 +9,8 @@
 extern crate log;
 extern crate alloc;
 
+mod tests;
+
 pub mod api;
 pub mod arch;
 
