@@ -1,3 +1,11 @@
+//! Signal handling syscalls.
+//!
+//! This module implements signal-related system calls including:
+//! - Signal mask manipulation (rt_sigprocmask, rt_sigaction, etc.)
+//! - Signal sending (kill, tgkill, sigqueue, etc.)
+//! - Signal waiting (pause, rt_sigsuspend, etc.)
+//! - Alternate signal stacks (sigaltstack)
+//! - Real-time signal operations
 use core::{future::poll_fn, task::Poll};
 
 use kcore::task::{
@@ -23,6 +31,7 @@ use crate::{
     time::TimeValueLike,
 };
 
+/// Validates that the signal set size matches the expected size.
 pub(crate) fn check_sigset_size(size: usize) -> KResult<()> {
     if size != size_of::<SignalSet>() && size != 0 {
         return Err(KError::InvalidInput);
@@ -30,10 +39,15 @@ pub(crate) fn check_sigset_size(size: usize) -> KResult<()> {
     Ok(())
 }
 
+/// Converts a numeric signal number to Signo enum.
 fn parse_signo(signo: u32) -> KResult<Signo> {
     Signo::from_repr(signo as u8).ok_or(KError::InvalidInput)
 }
 
+/// Manages the signal mask for the current thread.
+/// Allows blocking/unblocking signals or replacing the entire mask.
+/// Manipulate the signal mask for the current thread
+/// Allows blocking, unblocking, or replacing the entire signal mask
 pub fn sys_rt_sigprocmask(
     how: i32,
     set: *const SignalSet,
@@ -44,19 +58,23 @@ pub fn sys_rt_sigprocmask(
 
     let curr = current();
     let sig = &curr.as_thread().signal;
+    // Get the current signal mask
     let old = sig.blocked();
 
+    // If oldset is provided, return the old mask to user space
     if let Some(oldset) = oldset.check_non_null() {
         oldset.write_vm(old)?;
     }
 
+    // If a new mask is provided, apply the requested operation
     if let Some(set) = set.check_non_null() {
         let set = unsafe { set.read_uninit()?.assume_init() };
 
+        // Apply the mask operation based on 'how' parameter
         let set = match how as u32 {
-            SIG_BLOCK => old | set,
-            SIG_UNBLOCK => old & !set,
-            SIG_SETMASK => set,
+            SIG_BLOCK => old | set,    // Add signals to the mask
+            SIG_UNBLOCK => old & !set, // Remove signals from the mask
+            SIG_SETMASK => set,        // Replace the entire mask
             _ => return Err(KError::InvalidInput),
         };
 
@@ -67,6 +85,7 @@ pub fn sys_rt_sigprocmask(
     Ok(0)
 }
 
+/// Set or retrieve the action for a signal
 pub fn sys_rt_sigaction(
     signo: u32,
     act: *const kernel_sigaction,
@@ -93,6 +112,7 @@ pub fn sys_rt_sigaction(
     Ok(0)
 }
 
+/// Get the set of pending signals
 pub fn sys_rt_sigpending(set: *mut SignalSet, sigsetsize: usize) -> KResult<isize> {
     check_sigset_size(sigsetsize)?;
     set.write_vm(current().as_thread().signal.pending())?;
@@ -111,6 +131,7 @@ fn make_siginfo(signo: u32, code: i32) -> KResult<Option<SignalInfo>> {
     )))
 }
 
+/// Send a signal to a process or process group
 pub fn sys_kill(pid: i32, signo: u32) -> KResult<isize> {
     debug!("sys_kill: pid = {pid}, signo = {signo}");
     let sig = make_siginfo(signo, SI_USER as _)?;
@@ -146,12 +167,14 @@ pub fn sys_kill(pid: i32, signo: u32) -> KResult<isize> {
     Ok(0)
 }
 
+/// Send a signal to a specific thread
 pub fn sys_tkill(tid: Pid, signo: u32) -> KResult<isize> {
     let sig = make_siginfo(signo, SI_TKILL)?;
     send_signal_to_thread(None, tid, sig)?;
     Ok(0)
 }
 
+/// Send a signal to a thread within a specific thread group
 pub fn sys_tgkill(tgid: Pid, tid: Pid, signo: u32) -> KResult<isize> {
     let sig = make_siginfo(signo, SI_TKILL)?;
     send_signal_to_thread(Some(tgid), tid, sig)?;
@@ -178,6 +201,7 @@ pub(crate) fn make_queue_signal_info(
     Ok(Some(sig))
 }
 
+/// Queue a real-time signal with additional information to a process
 pub fn sys_rt_sigqueueinfo(
     tgid: Pid,
     signo: u32,
@@ -191,6 +215,7 @@ pub fn sys_rt_sigqueueinfo(
     Ok(0)
 }
 
+/// Queue a real-time signal with additional information to a specific thread
 pub fn sys_rt_tgsigqueueinfo(
     tgid: Pid,
     tid: Pid,
@@ -205,12 +230,14 @@ pub fn sys_rt_tgsigqueueinfo(
     Ok(0)
 }
 
+/// Return from signal handler and restore context
 pub fn sys_rt_sigreturn(uctx: &mut UserContext) -> KResult<isize> {
     block_next_signal();
     current().as_thread().signal.restore(uctx);
     Ok(uctx.retval() as isize)
 }
 
+/// Wait for a signal from a specified set with optional timeout
 pub fn sys_rt_sigtimedwait(
     uctx: &mut UserContext,
     set: *const SignalSet,
@@ -268,6 +295,7 @@ pub fn sys_rt_sigtimedwait(
     Ok(sig.signo() as _)
 }
 
+/// Replace signal mask and suspend execution until a signal is delivered
 pub fn sys_rt_sigsuspend(
     uctx: &mut UserContext,
     set: *const SignalSet,
@@ -297,6 +325,7 @@ pub fn sys_rt_sigsuspend(
     Err(KError::Interrupted)
 }
 
+/// Set or retrieve the alternate signal stack
 pub fn sys_sigaltstack(ss: *const SignalStack, old_ss: *mut SignalStack) -> KResult<isize> {
     let curr = current();
     let sig = &curr.as_thread().signal;

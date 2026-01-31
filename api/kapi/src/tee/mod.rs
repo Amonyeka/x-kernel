@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use khal::uspace::UserContext;
 use linux_sysno::Sysno;
 use tee_raw_sys::{TEE_ERROR_NOT_SUPPORTED, TeeTime};
@@ -30,6 +31,7 @@ mod uuid;
 
 pub type TeeResult<T = ()> = Result<T, u32>;
 
+/// Dispatch TEE-specific syscalls from the userspace context
 pub fn dispatch_irq_tee_syscall(sysno: Sysno, uctx: &mut UserContext) -> TeeResult {
     // Handle TEE-specific syscalls here
     match sysno {

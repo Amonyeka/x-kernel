@@ -1,3 +1,7 @@
+//! Resource limit and usage syscalls.
+//!
+//! This module provides syscalls for managing resource limits (prlimit64)
+//! and retrieving resource usage information (getrusage).
 use kcore::task::{AsThread, Thread, get_process_data, get_task};
 use kerrno::{KError, KResult};
 use khal::time::TimeValue;
@@ -8,6 +12,7 @@ use osvm::{VirtMutPtr, VirtPtr};
 
 use crate::time::TimeValueLike;
 
+/// Get and/or set resource limits for a process
 pub fn sys_prlimit64(
     pid: Pid,
     resource: u32,
@@ -78,6 +83,7 @@ impl From<Rusage> for rusage {
     }
 }
 
+/// Get resource usage information for the current process, children, or specific thread
 pub fn sys_getrusage(who: i32, usage: *mut rusage) -> KResult<isize> {
     const RUSAGE_SELF: i32 = linux_raw_sys::general::RUSAGE_SELF as i32;
     const RUSAGE_CHILDREN: i32 = linux_raw_sys::general::RUSAGE_CHILDREN;

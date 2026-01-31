@@ -1,3 +1,21 @@
+//! Syscall implementation and dispatch.
+//!
+//! This module is the core of the syscall interface. It dispatches system calls from user space
+//! to the appropriate handler functions based on the syscall number.
+//!
+//! The module is organized into submodules for different categories:
+//! - `fs`: File system operations
+//! - `io_mpx`: I/O multiplexing (select, poll, epoll)
+//! - `ipc`: Inter-process communication
+//! - `mm`: Memory management
+//! - `net`: Network operations
+//! - `resources`: Resource limits and usage
+//! - `signal`: Signal handling
+//! - `sync`: Synchronization primitives
+//! - `sys`: System information and control
+//! - `task`: Process and thread management
+//! - `time`: Time-related operations
+
 mod fs;
 mod io_mpx;
 mod ipc;
@@ -19,6 +37,7 @@ use self::{
     time::*,
 };
 
+/// Dispatches a syscall from the given user context.
 pub fn dispatch_irq_syscall(uctx: &mut UserContext) {
     let Some(sysno) = Sysno::new(uctx.sysno()) else {
         warn!("Invalid syscall number: {}", uctx.sysno());
