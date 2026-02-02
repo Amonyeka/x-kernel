@@ -44,6 +44,17 @@ jobs:
           path: .cache/X-Kernel
           submodules: recursive
 
+      - name: Display X-Kernel Cargo.lock (initial)
+        working-directory: .cache/X-Kernel
+        run: |
+          echo "::group::X-Kernel Cargo.lock (initial checkout)"
+          if [ -f Cargo.lock ]; then
+            cat Cargo.lock
+          else
+            echo "Cargo.lock not found"
+          fi
+          echo "::endgroup::"
+
       - name: Install Rust cache for harness
         uses: Swatinem/rust-cache@v2
         with:
@@ -76,11 +87,34 @@ jobs:
             rustup target list --installed | grep aarch64
           fi
 
+      - name: Display X-Kernel Cargo.lock (before build)
+        working-directory: .cache/X-Kernel
+        run: |
+          echo "::group::X-Kernel Cargo.lock (before build)"
+          if [ -f Cargo.lock ]; then
+            cat Cargo.lock
+          else
+            echo "Cargo.lock not found"
+          fi
+          echo "::endgroup::"
+
       - name: 执行 ci-test (${{ matrix.arch }})
         working-directory: starry-test-harness
         run: |
           export XKERNEL_COMMIT=$(git -C ../.cache/X-Kernel rev-parse HEAD)
           make ci-test run
+
+      - name: Display X-Kernel Cargo.lock (after build)
+        working-directory: .cache/X-Kernel
+        if: always()
+        run: |
+          echo "::group::X-Kernel Cargo.lock (after build)"
+          if [ -f Cargo.lock ]; then
+            cat Cargo.lock
+          else
+            echo "Cargo.lock not found"
+          fi
+          echo "::endgroup::"
 
       - name: Dump suite logs
         working-directory: starry-test-harness
