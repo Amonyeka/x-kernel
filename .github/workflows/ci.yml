@@ -44,17 +44,6 @@ jobs:
           path: .cache/X-Kernel
           submodules: recursive
 
-      - name: Save X-Kernel Cargo.lock (initial)
-        working-directory: .cache/X-Kernel
-        run: |
-          mkdir -p ../../cargo-lock-snapshots
-          if [ -f Cargo.lock ]; then
-            cp Cargo.lock ../../cargo-lock-snapshots/Cargo.lock.initial
-            echo "Saved initial Cargo.lock"
-          else
-            echo "Cargo.lock not found" > ../../cargo-lock-snapshots/Cargo.lock.initial.missing
-          fi
-
       - name: Install Rust cache for harness
         uses: Swatinem/rust-cache@v2
         with:
@@ -87,21 +76,11 @@ jobs:
             rustup target list --installed | grep aarch64
           fi
 
-      - name: Save X-Kernel Cargo.lock (before build)
-        working-directory: .cache/X-Kernel
-        run: |
-          if [ -f Cargo.lock ]; then
-            cp Cargo.lock ../../cargo-lock-snapshots/Cargo.lock.before-build
-            echo "Saved pre-build Cargo.lock"
-          else
-            echo "Cargo.lock not found" > ../../cargo-lock-snapshots/Cargo.lock.before-build.missing
-          fi
-
       - name: 执行 ci-test (${{ matrix.arch }})
         working-directory: starry-test-harness
         run: |
           export XKERNEL_COMMIT=$(git -C ../.cache/X-Kernel rev-parse HEAD)
-          make ci-test run
+          ./scripts/build_xkernel.sh 
 
       - name: Save X-Kernel Cargo.lock (after build)
         working-directory: .cache/X-Kernel
