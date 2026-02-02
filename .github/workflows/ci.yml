@@ -44,16 +44,16 @@ jobs:
           path: .cache/X-Kernel
           submodules: recursive
 
-      - name: Display X-Kernel Cargo.lock (initial)
+      - name: Save X-Kernel Cargo.lock (initial)
         working-directory: .cache/X-Kernel
         run: |
-          echo "::group::X-Kernel Cargo.lock (initial checkout)"
+          mkdir -p ../../cargo-lock-snapshots
           if [ -f Cargo.lock ]; then
-            cat Cargo.lock
+            cp Cargo.lock ../../cargo-lock-snapshots/Cargo.lock.initial
+            echo "Saved initial Cargo.lock"
           else
-            echo "Cargo.lock not found"
+            echo "Cargo.lock not found" > ../../cargo-lock-snapshots/Cargo.lock.initial.missing
           fi
-          echo "::endgroup::"
 
       - name: Install Rust cache for harness
         uses: Swatinem/rust-cache@v2
@@ -87,16 +87,15 @@ jobs:
             rustup target list --installed | grep aarch64
           fi
 
-      - name: Display X-Kernel Cargo.lock (before build)
+      - name: Save X-Kernel Cargo.lock (before build)
         working-directory: .cache/X-Kernel
         run: |
-          echo "::group::X-Kernel Cargo.lock (before build)"
           if [ -f Cargo.lock ]; then
-            cat Cargo.lock
+            cp Cargo.lock ../../cargo-lock-snapshots/Cargo.lock.before-build
+            echo "Saved pre-build Cargo.lock"
           else
-            echo "Cargo.lock not found"
+            echo "Cargo.lock not found" > ../../cargo-lock-snapshots/Cargo.lock.before-build.missing
           fi
-          echo "::endgroup::"
 
       - name: 执行 ci-test (${{ matrix.arch }})
         working-directory: starry-test-harness
@@ -104,17 +103,16 @@ jobs:
           export XKERNEL_COMMIT=$(git -C ../.cache/X-Kernel rev-parse HEAD)
           make ci-test run
 
-      - name: Display X-Kernel Cargo.lock (after build)
+      - name: Save X-Kernel Cargo.lock (after build)
         working-directory: .cache/X-Kernel
         if: always()
         run: |
-          echo "::group::X-Kernel Cargo.lock (after build)"
           if [ -f Cargo.lock ]; then
-            cat Cargo.lock
+            cp Cargo.lock ../../cargo-lock-snapshots/Cargo.lock.after-build
+            echo "Saved post-build Cargo.lock"
           else
-            echo "Cargo.lock not found"
+            echo "Cargo.lock not found" > ../../cargo-lock-snapshots/Cargo.lock.after-build.missing
           fi
-          echo "::endgroup::"
 
       - name: Dump suite logs
         working-directory: starry-test-harness
@@ -127,6 +125,14 @@ jobs:
           else
             echo "logs/ci not found"
           fi
+
+      - name: Upload Cargo.lock snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cargo-lock-snapshots-${{ matrix.arch }}-${{ github.run_id }}
+          path: cargo-lock-snapshots/
+          if-no-files-found: warn
 
       - name: Upload suite artifacts
         if: always()
