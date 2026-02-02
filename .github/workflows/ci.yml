@@ -86,6 +86,7 @@ jobs:
         working-directory: .cache/X-Kernel
         if: always()
         run: |
+          mkdir -p ../../cargo-lock-snapshots
           if [ -f Cargo.lock ]; then
             cp Cargo.lock ../../cargo-lock-snapshots/Cargo.lock.after-build
             echo "Saved post-build Cargo.lock"
