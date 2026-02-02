@@ -3,8 +3,9 @@
 //! Implementation adapted from the `SyncLazy` type of the standard library. See:
 //! <https://doc.rust-lang.org/std/lazy/struct.SyncLazy.html>
 
-use crate::once::Once;
 use core::{cell::Cell, fmt, ops::Deref};
+
+use crate::once::Once;
 
 /// A value which is initialized on the first access.
 ///
@@ -27,7 +28,9 @@ use core::{cell::Cell, fmt, ops::Deref};
 ///     println!("ready");
 ///     std::thread::spawn(|| {
 ///         println!("{:?}", HASHMAP.get(&13));
-///     }).join().unwrap();
+///     })
+///     .join()
+///     .unwrap();
 ///     println!("{:?}", HASHMAP.get(&74));
 ///
 ///     // Prints:
@@ -38,7 +41,7 @@ use core::{cell::Cell, fmt, ops::Deref};
 /// }
 /// ```
 pub struct Lazy<T, F = fn() -> T> {
-    cell: Once<T, R>,
+    cell: Once<T>,
     init: Cell<Option<F>>,
 }
 
@@ -71,6 +74,7 @@ impl<T, F> Lazy<T, F> {
             init: Cell::new(Some(f)),
         }
     }
+
     /// Retrieves a mutable pointer to the inner data.
     ///
     /// This is especially useful when interfacing with low level code or FFI where the caller

@@ -30,6 +30,13 @@ impl HwMemory for HwMemoryImpl {
         &MMIO_RANGES
     }
 
+    fn dma_regions() -> &'static [MemRange] {
+        &[(
+            crate::config::plat::DMA_MEM_BASE,
+            crate::config::plat::DMA_MEM_SIZE,
+        )]
+    }
+
     fn p2v(paddr: PhysAddr) -> VirtAddr {
         va!(paddr.as_usize() + PHYS_VIRT_OFFSET)
     }
