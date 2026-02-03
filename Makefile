@@ -74,6 +74,8 @@ NET_DEV ?= user
 VFIO_PCI ?=
 VHOST ?= n
 
+X86_GNU := n
+
 # Network options
 IP ?= 10.0.2.15
 GW ?= 10.0.2.2
@@ -102,22 +104,37 @@ include scripts/make/features.mk
 endif
 
 # Target
+UNAME_S := $(shell uname -s)
 ifeq ($(ARCH), x86_64)
-  TARGET := x86_64-unknown-none
+	ifeq ($(X86_GNU), y)
+		TARGET_TRIPLE := x86_64-unknown-linux-gnu
+		TARGET := $(PWD)/configs/targets/x86_64-unknown-linux-gnu-nostd.json
+		TARGET_DIR_NAME := x86_64-unknown-linux-gnu-nostd
+	else
+		TARGET_TRIPLE := x86_64-unknown-none
+		TARGET := $(TARGET_TRIPLE)
+		TARGET_DIR_NAME := $(TARGET_TRIPLE)
+	endif
 else ifeq ($(ARCH), aarch64)
-  TARGET := aarch64-unknown-none-softfloat
+	TARGET_TRIPLE := aarch64-unknown-none-softfloat
+	TARGET := $(TARGET_TRIPLE)
+	TARGET_DIR_NAME := $(TARGET_TRIPLE)
 else ifeq ($(ARCH), riscv64)
-  TARGET := riscv64gc-unknown-none-elf
+	TARGET_TRIPLE := riscv64gc-unknown-none-elf
+	TARGET := $(TARGET_TRIPLE)
+	TARGET_DIR_NAME := $(TARGET_TRIPLE)
 else ifeq ($(ARCH), loongarch64)
-  TARGET := loongarch64-unknown-none-softfloat
+	TARGET_TRIPLE := loongarch64-unknown-none-softfloat
+	TARGET := $(TARGET_TRIPLE)
+	TARGET_DIR_NAME := $(TARGET_TRIPLE)
 else
-  $(error "ARCH" must be one of "x86_64", "riscv64", "aarch64" or "loongarch64")
+	$(error "ARCH" must be one of "x86_64", "riscv64", "aarch64" or "loongarch64")
 endif
 
 export K_ARCH=$(ARCH)
 export K_MODE=$(MODE)
 export K_LOG=$(LOG)
-export K_TARGET=$(TARGET)
+export K_TARGET=$(TARGET_TRIPLE)
 export K_IP=$(IP)
 export K_GW=$(GW)
 
@@ -142,7 +159,7 @@ GDB ?= gdb
 
 # Paths
 OUT_DIR ?= $(PWD)
-LD_SCRIPT ?= $(TARGET_DIR)/$(TARGET)/$(MODE)/linker_$(PLAT_NAME).lds
+LD_SCRIPT ?= $(TARGET_DIR)/$(TARGET_DIR_NAME)/$(MODE)/linker_$(PLAT_NAME).lds
 
 APP_NAME := xkernel
 OUT_ELF := $(OUT_DIR)/$(APP_NAME)_$(PLAT_NAME).elf
