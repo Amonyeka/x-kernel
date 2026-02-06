@@ -131,6 +131,17 @@ impl DeviceOps for DiceNodeInfo<'static> {
     }
 }
 
+/// Kernel-side helper to fetch DICE handover data as a single buffer.
+pub fn get_dice_handover() -> KResult<Vec<u8>> {
+    let info = DiceNodeInfo::new();
+    let (cdi_attest, cdi_seal, chain) = info.parse_handover_data()?;
+    let mut out = Vec::with_capacity(cdi_attest.len() + cdi_seal.len() + chain.len());
+    out.extend_from_slice(&cdi_attest);
+    out.extend_from_slice(&cdi_seal);
+    out.extend_from_slice(&chain);
+    Ok(out)
+}
+
 fn get_process_hash() -> KResult<Vec<u8>> {
     use alloc::format;
 
