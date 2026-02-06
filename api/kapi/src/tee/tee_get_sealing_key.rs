@@ -111,27 +111,27 @@ pub union CertPubkeyData {
 ///
 /// # Safety
 /// 此函数使用内联汇编，仅应在 x86_64 架构上使用
-pub unsafe fn hypercall(nr: u32, p1: usize, len: usize) -> i64 {
-    #[cfg(feature = "x86_csv")]
-    {
-        let ret: i64;
-        asm!(
-            "vmmcall",
-            inlateout("rax") nr => _,
-            in("rbx") p1,
-            in("rcx") len,
-            lateout("rax") ret,
-            clobber_abi("system"),
-        );
-        ret
-    }
+// pub unsafe fn hypercall(nr: u32, p1: usize, len: usize) -> i64 {
+//     #[cfg(feature = "x86_csv")]
+//     {
+//         let ret: i64;
+//         asm!(
+//             "vmmcall",
+//             inlateout("rax") nr => _,
+//             in("rbx") p1,
+//             in("rcx") len,
+//             lateout("rax") ret,
+//             clobber_abi("system"),
+//         );
+//         ret
+//     }
 
-    #[cfg(not(feature = "x86_csv"))]
-    {
-        // 对于其他架构，返回错误
-        -1
-    }
-}
+//     #[cfg(not(feature = "x86_csv"))]
+//     {
+//         // 对于其他架构，返回错误
+//         -1
+//     }
+// }
 
 use tee_raw_sys::{
     TEE_ALG_HMAC_SM3, TEE_ALG_SM3, TEE_OperationMode,
@@ -273,7 +273,7 @@ pub unsafe fn get_attestation_report(
     user_data.compute_sm3_hash()?;
 
     let user_data_pa = user_data.physical_address();
-    let ret = unsafe { hypercall(KVM_HC_VM_ATTESTATION, user_data_pa, PAGE_SIZE) };
+    let ret = unsafe { kcpu::hypercall(KVM_HC_VM_ATTESTATION, user_data_pa, PAGE_SIZE) };
 
     if ret != 0 {
         error!("hypercall failed: {}", ret);
