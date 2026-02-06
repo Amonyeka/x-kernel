@@ -653,11 +653,20 @@ pub fn dispatch_irq_syscall(uctx: &mut UserContext) {
             {
                 use tee_raw_sys::TEE_SUCCESS;
 
-                use crate::tee::dispatch_irq_tee_syscall;
+                use crate::{tee::dispatch_irq_tee_syscall, tee_debug};
 
-                match dispatch_irq_tee_syscall(sysno, uctx) {
+                tee_debug!("---> TEE syscall: sysno: {:?}", sysno);
+                let result = dispatch_irq_tee_syscall(sysno, uctx);
+                tee_debug!("<--- TEE syscall return sysno: {:?}", sysno);
+                match result {
                     Ok(_) => Ok(TEE_SUCCESS as isize),
-                    Err(errno) => Ok(errno as isize),
+                    Err(errno) => {
+                        error!(
+                            "TEE syscall failed: sysno: {:?}, error: {:#010X?}",
+                            sysno, errno
+                        );
+                        Ok(errno as isize)
+                    }
                 }
             }
             #[cfg(not(feature = "tee"))]
