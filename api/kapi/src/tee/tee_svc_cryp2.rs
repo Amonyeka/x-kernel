@@ -613,6 +613,29 @@ pub fn tee_cryp_state_alloc(
     Ok(())
 }
 
+pub fn syscall_cryp_state_alloc(
+    arg0: usize,
+    arg1: usize,
+    arg2: usize,
+    arg3: usize,
+    arg4: usize,
+) -> TeeResult {
+    let mut state = 0u32;
+    let mode = match arg1 {
+        0 => TEE_OperationMode::TEE_MODE_ENCRYPT,
+        1 => TEE_OperationMode::TEE_MODE_DECRYPT,
+        2 => TEE_OperationMode::TEE_MODE_SIGN,
+        3 => TEE_OperationMode::TEE_MODE_VERIFY,
+        4 => TEE_OperationMode::TEE_MODE_MAC,
+        5 => TEE_OperationMode::TEE_MODE_DIGEST,
+        6 => TEE_OperationMode::TEE_MODE_DERIVE,
+        _ => return Err(TEE_ERROR_BAD_PARAMETERS),
+    };
+    let key1 = if arg2 == 0 { None } else { Some(arg2 as u32) };
+    let key2 = if arg3 == 0 { None } else { Some(arg3 as u32) };
+    tee_cryp_state_alloc(arg0 as _, mode, key1, key2, &mut state)
+}
+
 // 复制一个TeeCrypState
 pub fn tee_cryp_state_copy(_dst_id: u32, _src_id: u32) -> TeeResult {
     // TODO:需要改动mbedtls，后续再进行实现
@@ -632,9 +655,17 @@ pub fn tee_cryp_state_copy(_dst_id: u32, _src_id: u32) -> TeeResult {
     Ok(())
 }
 
+pub fn syscall_cryp_state_copy(arg0: usize, arg1: usize) -> TeeResult {
+    tee_cryp_state_copy(arg0 as _, arg1 as _)
+}
+
 // 删除一个TeeCrypState
 pub fn tee_cryp_state_free(id: u32) -> TeeResult {
     cryp_state_free(id)
+}
+
+pub fn syscall_cryp_state_free(arg0: usize) -> TeeResult {
+    tee_cryp_state_free(arg0 as _)
 }
 
 // 根据id获取一个TeeCrypState
